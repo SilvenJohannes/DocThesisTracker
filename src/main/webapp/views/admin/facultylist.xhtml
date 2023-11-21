@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+	<title>Fakultäten</title>
+	<link href="${request.contextPath}/resources/css/style.css"
+		rel="stylesheet" type="text/css" />
+
+	<link
+		href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		rel="stylesheet" />
+</h:head>
+
+<h:body>
+	<ui:composition template="../anonymous/template.xhtml">
+		<ui:define name="mainContent">
+
+			<div class="container">
+
+					<h2>Liste der Fakultäten</h2>
+
+                <h:form id="facultyNew">
+					<div class="form-group row">
+						<h:outputLabel for="newFaculty" value="Neue Fakultät:" />
+						<h:inputText id="newFaculty"
+							value="#{facultyBacking.newFacultyName}"
+							validator="UniqueFacultyNameValidator" />
+						<h:commandButton id="cbt-new" update="facultyTable" value="Hinzufügen"
+							action="#{facultyBacking.add}" />
+						<h:message for="newFaculty" styleClass="message" />
+					</div>
+				</h:form>
+
+				<h:message id="global" styleClass="message" />
+				<h:dataTable id="facultyTable" value="#{facultyBacking.faculties}"
+					var="faculty" border="1" class="table">
+					<f:facet name="header">
+						<h:outputText value="Fakultäten" styleClass="text-center" />
+					</f:facet>
+					<h:column>
+						<h:form id="facultyEdit">
+							<h:inputText id="it-edit" value="#{faculty.name}" required="true"
+								validator="UniqueFacultyNameValidator" />
+							<h:commandButton id="cbt-edit" update="facultyTable" value="Umbenennen"
+								action="#{facultyBacking.update(faculty)}"
+								class="btn btn-primary" />
+						</h:form>
+					</h:column>
+					<h:column>
+						<h:form id="facultyDelete">
+							<h:commandButton id="cbt-delete" update="facultyTable" value="Löschen"
+								onclick="return confirm('Sind sie sicher, dass sie die Fakultät #{faculty.name} löschen wollen?')"
+								action="#{facultyBacking.remove(faculty)}"
+								class="btn btn-danger" />
+						</h:form>
+					</h:column>
+				</h:dataTable>
+
+			</div>
+
+		</ui:define>
+	</ui:composition>
+</h:body>
+
+</html>

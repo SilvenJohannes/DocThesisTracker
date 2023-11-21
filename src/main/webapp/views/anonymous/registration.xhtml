@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+   <title>Registration</title>
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"/>
+</h:head>
+
+<h:body>
+   <ui:composition template="../anonymous/template.xhtml">
+   <ui:define name="mainContent">
+
+   <h:form id="registration-form" class="container">
+      <h3>Registration</h3>
+
+      <div class="form-group">
+         <label for="email-itxt">Email:</label>
+         <h:inputText id="email-itxt" value="#{registrationBacking.user.email}" required="true" requiredMessage="Empty email!"
+                      validator="compositeValidator" class="form-control" />
+         <h:message for="email-itxt" style="color: red;" class="error-message"/>
+      </div>
+
+      <div class="form-group">
+         <label for="firstname-itxt">Vorname:</label>
+         <h:inputText id="firstname-itxt" value="#{registrationBacking.user.firstName}" required="true" requiredMessage="You have to put in your name!" class="form-control"/>
+         <h:message for="firstname-itxt" style="color: red;" class="error-message"/>
+      </div>
+
+      <div class="form-group">
+         <label for="lastname-itxt">Name:</label>
+         <h:inputText id="lastname-itxt" value="#{registrationBacking.user.lastName}" required="true" requiredMessage="You have put in your last name!" class="form-control"/>
+         <h:message for="lastname-itxt" style="color : red;" class="error-message"/>
+      </div>
+
+      <div class="form-group">
+         <label for="birthdate-itxt">Geburtstag:</label>
+         <h:inputText id="birthdate-itxt" value="#{registrationBacking.user.birthDate}" required="true" requiredMessage="You have to put in your birthday!" class="form-control" converter="LocalDateConverter"/>
+         <h:message for="birthdate-itxt" style="color: red;" class="error-message"/>
+      </div>
+
+      <div class="form-group">
+         <label>Fakultät</label>
+         <h:selectOneMenu value="#{registrationBacking.faculty}" class="form-control" converter="facultyConverter">
+            <f:selectItems value="#{registrationBacking.listOfFaculties}" var="faculty" itemLabel="#{faculty.name}" itemValue="#{faculty}"/>
+         </h:selectOneMenu>
+      </div>
+
+      <div>
+         <h:commandButton value="Register" action="#{registrationBacking.register()}" class="btn btn-primary"/>
+      </div>
+   </h:form>
+
+   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+   </ui:define>
+   </ui:composition>
+</h:body>
+
+</html>

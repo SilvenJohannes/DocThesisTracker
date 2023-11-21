@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+
+<f:view>
+    <f:metadata>
+        <f:viewAction action="#{profileBacking.load()}"/>
+        <f:viewParam name="id" value="#{profileBacking.user.id}"/>
+    </f:metadata>
+
+    <h:head>
+        <title>Profile</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet"/>
+    </h:head>
+
+    <h:body>
+        <ui:composition template="../anonymous/template.xhtml">
+            <ui:define name="mainContent">
+                <div class="container">
+                    <h:form id="profile">
+
+                        <h3>Profile</h3>
+
+                        <div class="form-group">
+                            <label for="firstName-itxt">Vorname:</label>
+                            <h:inputText id="firstName-itxt" value="#{profileBacking.user.firstName}"
+                                         class="form-control" readonly="#{profileBacking.sameLevel}" required="true"
+                                         requiredMessage="Bitte geben Sie Ihren Vornamen ein"/>
+                            <h:message for="firstName-itxt"></h:message>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName-itxt">Nachname:</label>
+                            <h:inputText id="lastName-itxt" value="#{profileBacking.user.lastName}"
+                                         class="form-control" readonly="#{profileBacking.sameLevel}" required="true"
+                                         requiredMessage="Bitte geben Sie Ihren Nachnamen ein"/>
+                            <h:message for="lastName-itxt"></h:message>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email-itxt">E-mail:</label>
+                            <h:inputText id="email-itxt" value="#{profileBacking.newEmail}" readonly="#{profileBacking.sameLevel}" class="form-control">
+                                <f:validator validatorId="EmailAddressAvailabilityValidator"/>
+                                <f:validator validatorId="EmailAddressSyntaxValidator"/>
+                            </h:inputText>
+                            <h:message for="email-itxt"></h:message>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password-iscrt">Passwort:</label>
+                            <h:inputSecret id="password-iscrt" value="#{profileBacking.user.password}" readonly="#{profileBacking.sameLevel}"
+                                           validator="PasswordValidator" class="form-control"/>
+
+                            <h:message for="password-iscrt"></h:message>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="birthDate-itxt">Geburtsdatum:</label>
+                            <h:inputText id="birthDate-itxt" type="date" value="#{profileBacking.user.birthDate}"
+                                         class="form-control" required="true" readonly="#{profileBacking.sameLevel}"
+                                         requiredMessage="Bitte geben Sie Ihr Geburtsdatum ein">
+                                <f:convertDateTime pattern="yyyy-MM-dd" type="localDate"/>
+                            </h:inputText>
+                            <h:message for="birthDate-itxt" styleClass="message"/>
+                        </div>
+
+                        <!--faculty table, faculties the user belongs to -->
+
+                        <div>
+                            <h:outputLabel for="faculty-table" value="Benutzerfakultäten:"
+                                           rendered="#{sessionInfo.admin or profileBacking.ownProfile}"/>
+                            <p:dataTable id="faculty-table" value="#{profileBacking.user.userState.entrySet()}"
+                                         styleClass="table table-bordered"
+                                         rendered="#{sessionInfo.admin or profileBacking.ownProfile}"
+                                         var="entry">
+                                <p:column headerText="Faculty">
+                                    #{entry.key.name}
+                                </p:column>
+                                <p:column headerText="User State">
+                                    #{entry.value}
+                                </p:column>
+                            </p:dataTable>
+
+                        </div>
+
+                        <!--set user state -->
+
+                        <div>
+                            <h:outputLabel for="user-states-slcom" value="Benutzerstatus: "
+                                           rendered="#{(sessionInfo.deanery or sessionInfo.admin) and
+                                             !profileBacking.ownProfile and !profileBacking.sameLevel}"/>
+
+                            <h:selectOneMenu id="user-states-slcom" value="#{profileBacking.currentUserState}"
+                                             rendered="#{(sessionInfo.deanery or sessionInfo.admin) and
+                                             !profileBacking.ownProfile and !profileBacking.sameLevel}">
+                                <f:selectItems id="userstate-item" value="#{profileBacking.userStates}" var="state"
+                                               itemValue="#{state}"/>
+                            </h:selectOneMenu>
+
+
+                            <!--set faculty select one menu -->
+
+                            <h:outputLabel for="faculty-slcom" value="Fakultät: "
+                                           rendered="#{sessionInfo.admin and !profileBacking.ownProfile}"/>
+
+                            <h:selectOneMenu id="faculty-slcom" value="#{profileBacking.currentFaculty}"
+                                             converter="facultyConverter"
+                                             rendered="#{sessionInfo.admin and !profileBacking.ownProfile}">
+                                <f:selectItems value="#{profileBacking.faculties}" var="currentFaculty"
+                                               itemValue="#{currentFaculty}" itemLabel="#{currentFaculty.name}"/>
+                            </h:selectOneMenu>
+                            <!--add or update Authentication button -->
+
+                            <h:commandButton id="updateAuth-cbtn" value="Authentifizierung aktualisieren"
+                                             action="#{profileBacking.addOrUpdateAuth()}"
+                                             class="btn btn-success"
+                                             rendered="#{(sessionInfo.admin or sessionInfo.deaneryInCurrentFaculty())
+                                             and !profileBacking.sameLevel and !profileBacking.ownProfile}"/>
+
+                            <!--delete Authentication button -->
+
+                            <h:commandButton id="deleteAuth-cbtn" value="Authentifizierung entfernen"
+                                             action="#{profileBacking.removeAuth()}"
+                                             class="btn btn-danger"
+                                             rendered="#{(sessionInfo.admin or sessionInfo.deaneryInCurrentFaculty())
+                                             and !profileBacking.sameLevel and !profileBacking.ownProfile}"
+                                             onclick="return confirm('Sind sie sicher, dass sie diese Benutzer-Authentifizierung entfernen wollen?');"/>
+                        </div>
+
+
+                        <!--save button -->
+
+                        <h:commandButton id="save-cbtn" value="Speichern" action="#{profileBacking.save()}"
+                                         rendered="#{!profileBacking.sameLevel}" class="btn btn-primary"/>
+
+                        <!--delete profile button -->
+
+                        <h:commandButton id="delete-cbtn" value="Benutzer löschen"
+                                         action="#{profileBacking.deleteProfile()}"
+                                         class="btn btn-danger"
+                                         rendered="#{!profileBacking.sameLevel}"
+                                         onclick="return confirm('Sind sie sicher, dass sie dieses Profil löschen wollen?')"/>
+
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</f:view>
+
+</html>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+>
+
+<f:view>
+    <f:metadata>
+        <f:viewAction action="#{circulationDetailsBacking.loadCirculation()}"/>
+        <f:viewParam name="id" value="#{circulationDetailsBacking.circulation.id}"/>
+        <f:viewAction action="#{circulationDetailsBacking.loadVotes()}"/>
+        <f:viewParam name="voteId" value="#{circulationDetailsBacking.vote.voteId}"/>
+    </f:metadata>
+    <h:head>
+        <title>Circulation Details</title>
+        <link href="${request.contextPath}/resources/css/style.css" rel="stylesheet" type="text/css"/>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+    </h:head>
+
+    <h:body>
+        <ui:composition template="../anonymous/template.xhtml">
+            <ui:define name="mainContent">
+                <h:form id="circulationDetails">
+                    <div class="container">
+                        <h2>Circulation Details</h2>
+                        <div class="form-group">
+                            <label for="title-itxt">Title:</label>
+                            <h:inputText id="title-itxt" value="#{circulationDetailsBacking.circulation.title}"
+                                         readonly="#{sessionInfo.examinerInCurrentFaculty()}" required="true"
+                                         requiredMessage="Bitte füllen Sie dieses Feld aus!"
+                                         validator="UniqueCirculationNameValidator"
+                                         class="form-control">
+                                <f:attribute name="originalValue"
+                                             value="#{circulationDetailsBacking.circulation.title}"/>
+                            </h:inputText>
+                            <h:message for="title-itxt" styleClass="message"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doctoralcandidatename-itxt">Doctoral Candidate Name:</label>
+                            <h:inputText id="doctoralcandidatename-itxt"
+                                         value="#{circulationDetailsBacking.circulation.doctoralCandidateName}"
+                                         readonly="#{sessionInfo.examinerInCurrentFaculty()}" required="true"
+                                         class="form-control" requiredMessage="Bitte füllen Sie dieses Feld aus!">
+                            </h:inputText>
+                            <h:messages for="doctoralcandidatename-itxt" styleClass="message"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doctoralsupervisoror-itxt">Doctoral Supervisor:</label>
+                            <h:inputText id="doctoralsupervisoror-itxt"
+                                         value="#{circulationDetailsBacking.circulation.doctoralSupervisor}"
+                                         readonly="#{sessionInfo.examinerInCurrentFaculty()}" required="true"
+                                         class="form-control" requiredMessage="Bitte füllen Sie dieses Feld aus!">
+                            </h:inputText>
+                            <h:messages for="doctoralsupervisoror-itxt" styleClass="message"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description-itxt">Description:</label>
+                            <h:inputText id="description-itxt"
+                                         value="#{circulationDetailsBacking.circulation.description}"
+                                         readonly="#{sessionInfo.examinerInCurrentFaculty()}" required="true"
+                                         requiredMessage="Bitte füllen Sie dieses Feld aus!"
+                                         class="form-control">
+                            </h:inputText>
+                            <h:messages for="description-itxt" styleClass="message"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="start-date-itxt">Start Date:</label>
+                            <h:inputText id="start-date-itxt" value="#{circulationDetailsBacking.startDate}"
+                                         readonly="#{sessionInfo.examinerInCurrentFaculty()}" type="date"
+                                         class="form-control" requiredMessage="Bitte füllen Sie dieses Feld aus!"
+                                         validator="FutureDateTimeValidator" required="true">
+                                <f:attribute name="originalDate"
+                                             value="#{circulationDetailsBacking.startDate}"/>
+                                <f:convertDateTime pattern="yyyy-MM-dd" type="localDate"/>
+                            </h:inputText>
+                            <h:messages for="start-date-itxt" styleClass="message"/>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="end-date-itxt">End Date:</label>
+                            <h:inputText id="end-date-itxt" value="#{circulationDetailsBacking.endDate}" required="true"
+                                         readonly="#{sessionInfo.examinerInCurrentFaculty()}" type="date"
+                                         requiredMessage="Bitte füllen Sie dieses Feld aus!"
+                                         validator="FutureDateTimeValidator" class="form-control">
+                                <f:convertDateTime pattern="yyyy-MM-dd" type="localDate"/>
+                            </h:inputText>
+                            <h:messages for="end-date-itxt" styleClass="message"/>
+
+                        </div>
+
+                        <div class="form-group">
+                            <h:outputLabel for="created-by-otxt" value="Created By:"
+                                           rendered="#{!sessionInfo.examinerInCurrentFaculty()}"/>
+                            <h:outputText id="created-by-otxt"
+                                          value="#{circulationDetailsBacking.createdBy}"
+                                          class="form-control" rendered="#{!sessionInfo.examinerInCurrentFaculty()}"/>
+                        </div>
+
+                        <div class="form-group">
+                            <h:outputLabel for="faculty-id-otxt" value="Faculty :"
+                                           rendered="#{!sessionInfo.examinerInCurrentFaculty()}"/>
+                            <h:outputText id="faculty-id-otxt"
+                                          value="#{circulationDetailsBacking.facultyName}"
+                                          class="form-control" rendered="#{!sessionInfo.examinerInCurrentFaculty()}"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vote-options-slcom">Select vote:</label>
+                            <h:selectOneMenu id="vote-options-slcom" value="#{circulationDetailsBacking.choice}"
+                                             class="form-control">
+                                <f:selectItems value="#{circulationDetailsBacking.options}" var="option"
+                                               itemValue="#{option}" itemLabel="#{option.label}"/>
+                            </h:selectOneMenu>
+
+                            <div>
+                                <label for="reason-itxt">Erklärung:</label>
+                                <h:inputText id="reason-itxt" value="#{circulationDetailsBacking.reason}"
+                                             class="form-control"/>
+                            </div>
+
+                            <!-- Vote button -->
+
+                            <div>
+                                <h:commandButton id="vote-btn" action="#{circulationDetailsBacking.submitVote()}"
+                                                 value="Vote"
+                                                 rendered="#{circulationDetailsBacking.expiredCirculation}"
+                                                 class="btn btn-primary"/>
+                            </div>
+
+                        </div>
+                        <h:commandButton id="modify-cbtn" action="#{circulationDetailsBacking.modify()}"
+                                         value="Modify circulation"
+                                         rendered="#{!sessionInfo.examinerInCurrentFaculty()}"
+                                         class="btn btn-primary"/>
+
+                        <h:link id="voteList-link"
+                                outcome="/views/authenticated/voteList.xhtml?id=#{circulationDetailsBacking.circulation.id}"
+                                rendered="#{!sessionInfo.examinerInCurrentFaculty()}" value="Display votes"
+                                class="btn btn-success"/>
+
+                        <h:commandButton id="remove-cbtn" action="#{circulationDetailsBacking.remove()}"
+                                         value="Remove Circulation"
+                                         rendered="#{!sessionInfo.examinerInCurrentFaculty()}"
+                                         class="btn btn-danger"
+                                         onclick="return confirm('Sind sie sicher, dass sie dieses Umlauf löschen wollen?')"/>
+                        <div>
+                            <h:outputText id="votes-otxt"
+                                          value="Total votes: #{circulationDetailsBacking.totalVotes.size()}"
+                                          rendered="#{!sessionInfo.examinerInCurrentFaculty()}"/>
+                        </div>
+
+
+
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</f:view>
+
+</html>

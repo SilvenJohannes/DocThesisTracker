@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+
+>
+
+<f:view>
+    <h:head>
+        <title>Header</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+        <script type="text/javascript" src="/resources/js/script.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <style>
+            .right-align {
+                position: absolute;
+                right: 25px;
+            }
+        </style>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var toggler = document.querySelector('.navbar-toggler');
+                var navMenu = document.querySelector('.navbar-collapse');
+
+                toggler.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    navMenu.classList.toggle('show');
+                });
+            });
+
+        </script>
+
+
+    </h:head>
+    <h:body>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">
+                <h:graphicImage value="/logo/LogoSeite.png" style="max-width: 200px; max-height: 200px;"/>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <h:form id="navbarForm">
+                    <ul class="navbar-nav ml-auto">
+                        <!--  für anonymous User -->
+                        <h:panelGroup rendered="#{sessionInfo.anonymous}">
+                            <h:link id="homepageLog-lin" outcome="/views/anonymous/login.xhtml" value="Hauptseite"
+                                    styleClass="nav-link"/>
+                            <li class="nav-item">
+                                <h:link id="help-link" outcome="/views/help/help" value="Hilfeseite"
+                                        styleClass="nav-link"/>
+                            </li>
+                        </h:panelGroup>
+                        <!--  für authenticated -->
+                        <h:panelGroup rendered="#{!sessionInfo.pendingInCurrentFaculty() and !sessionInfo.anonymous}">
+
+                            <li class="nav-item">
+                                <h:link id="homepage-link" outcome="/views/authenticated/circulationslist.xhtml"
+                                        value="Hauptseite"
+                                        styleClass="nav-link"/>
+                            </li>
+
+                            <li class="nav-item">
+
+                                <h:outputLink id="profil-link"
+                                              value="../authenticated/profile.xhtml?id=#{sessionInfo.user.id}">
+                                    <h:outputText value="Profilseite" styleClass="nav-link"/>
+                                </h:outputLink>
+                            </li>
+
+
+                        </h:panelGroup>
+
+                        <!-- für committeeMember/ deanery/ admin -->
+                        <h:panelGroup
+                                rendered="#{sessionInfo.committeeMemberInCurrentFaculty() or sessionInfo.deaneryInCurrentFaculty() or sessionInfo.admin}">
+
+                            <li class="nav-item">
+                                <h:link id="create-circulation-link" outcome="/views/examineCommittee/createCirculation"
+                                        value="Umlauf erstellen" styleClass="nav-link"/>
+                            </li>
+
+                        </h:panelGroup>
+                        <!-- deanery/ admin -->
+                        <h:panelGroup rendered="#{sessionInfo.deaneryInCurrentFaculty() or sessionInfo.admin}">
+                            <li class="nav-item">
+                                <h:link id="user-list-link" outcome="/views/deanery/userList" value="BenutzerListe"
+                                        styleClass="nav-link"/>
+                            </li>
+                        </h:panelGroup>
+
+                        <!-- Admin -->
+                        <h:panelGroup rendered="#{ sessionInfo.admin}">
+                            <li class="nav-item">
+                                <h:link id="faculty-id" outcome="/views/admin/facultylist.xhtml"
+                                        value="Fakultät erstellen"
+                                        styleClass="nav-link"/>
+                            </li>
+                        </h:panelGroup>
+
+
+                        <!-- Logout button -->
+                        <h:panelGroup rendered="#{ !sessionInfo.anonymous}">
+
+                            <li class="nav-item">
+                                <h:link id="help-authenticated-link" outcome="/views/help/help" value="Hilfeseite"
+                                        styleClass="nav-link"/>
+                            </li>
+
+                            <li class="nav-item">
+                                <h:commandButton id="logout-cbtn" action="#{logout.logout()}" value="Abmelden"
+                                                 styleClass="nav-link btn btn-secondary"/>
+                            </li>
+
+                            <h:outputText value="#{navigationBacking.currentUserState}"
+                                          styleClass="nav-link disabled "/>
+
+
+                            <li class="nav-item right-align">
+                                <h:selectOneMenu id="selected-faculty-slom" value="#{navigationBacking.selectedFaculty}"
+                                                 rendered="#{!sessionInfo.admin}" styleClass="custom-select">
+                                    <f:selectItems id="faculty-item" value="#{sessionInfo.user.userFaculties}"
+                                                   var="state"
+                                                   itemValue="#{state}" itemLabel="#{state}"/>
+                                    <f:ajax event="change" execute="@all"
+                                            listener="#{navigationBacking.changeUserState}" render="@form :dataForm"/>
+
+
+                                </h:selectOneMenu>
+
+                            </li>
+                            <h:messages id="errorMessages" globalOnly="true" infoClass="alert alert-info"
+                                        errorClass="alert alert-danger"
+                                        render="errorMessages"/>
+
+                        </h:panelGroup>
+
+
+                    </ul>
+
+
+                </h:form>
+            </div>
+        </nav>
+
+    </h:body>
+</f:view>
+</html>
+
+
+
